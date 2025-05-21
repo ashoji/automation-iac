@@ -1,0 +1,41 @@
+# Ignore Bicep compiled outputs and parameters
+*.json
+*.parameters.json
+
+# Ignore local environment and secret files
+.env
+.env.*
+*.secret
+
+# Azure Developer CLI environments
+.azd/
+
+# Visual Studio Code settings
+.vscode/
+
+# PowerShell logs and session files
+*.log
+*.ps1xml
+*.pseventlog
+
+# Terraform state (if using Terraform)
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+override.tf
+override.tf.json
+*.tfplan
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# GitHub CodeSpaces
+.devcontainer/
+
+# Node modules (if any scripts added)
+node_modules/
+
+# Python virtual env (if any notebooks added)
+.venv/
