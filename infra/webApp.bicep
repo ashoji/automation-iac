@@ -1,4 +1,4 @@
-// Module to deploy Azure App Service Plan and Web App
+// Module to deploy Azure App Service Plan and Web App with enhanced security
 
 @description('Name of the Web App')
 param webAppName string
@@ -11,20 +11,20 @@ param location string
 
 var webAppNameUnique = '${webAppName}${uniqueString(resourceGroup().id)}'
 
-// App Service Plan: Standard S1 for balanced performance
+// App Service Plan: Free tier for demonstration (upgrade to Standard for production)
 resource appServicePlan 'Microsoft.Web/serverfarms@2024-04-01' = {
   name: appServicePlanName
   location: location
   sku: {
     name: 'F1'
-    tier: 'Standard'
+    tier: 'Free'
   }
   properties: {
     reserved: false
   }
 }
 
-// Web App: Run on Windows, uses managed identity for secure access to SQL
+// Web App: Enhanced security configuration with managed identity
 resource webApp 'Microsoft.Web/sites@2024-04-01' = {
   name: webAppNameUnique
   location: location
@@ -34,11 +34,22 @@ resource webApp 'Microsoft.Web/sites@2024-04-01' = {
   }
   properties: {
     serverFarmId: appServicePlan.id
+    httpsOnly: true
     siteConfig: {
+      minTlsVersion: '1.2'
+      ftpsState: 'FtpsOnly'
       ipSecurityRestrictionsDefaultAction: 'Deny'
+      scmIpSecurityRestrictionsDefaultAction: 'Deny'
+      alwaysOn: false // Free tier doesn't support Always On
+      detailedErrorLoggingEnabled: true
+      httpLoggingEnabled: true
+      requestTracingEnabled: true
     }
+    clientAffinityEnabled: false
   }
 }
 
-// Output default host name
+// Output default host name and additional info
 output defaultHostName string = webApp.properties.defaultHostName
+output webAppId string = webApp.id
+output managedIdentityPrincipalId string = webApp.identity.principalId

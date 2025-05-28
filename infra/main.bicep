@@ -13,12 +13,11 @@ param sqlServerName string
 @description('Name of the SQL Database')
 param sqlDatabaseName string
 
-@description('Administrator login for the SQL Server')
-param administratorLogin string
+@description('Entra ID administrator object ID for SQL Server')
+param entraAdminObjectId string
 
-@secure()
-@description('Administrator password for the SQL Server')
-param administratorLoginPassword string
+@description('Entra ID administrator login name (email or UPN) for SQL Server')
+param entraAdminLoginName string
 
 @description('Location for all resources')
 param location string = resourceGroup().location
@@ -33,17 +32,22 @@ module webAppModule 'webApp.bicep' = {
   }
 }
 
-// Deploy SQL Database module
+// Deploy SQL Database module with Entra ID authentication
 module sqlDbModule 'sqlDatabase.bicep' = {
   name: 'sqlDbDeployment'
   params: {
     sqlServerName: sqlServerName
     sqlDatabaseName: sqlDatabaseName
-    administratorLogin: administratorLogin
-    administratorLoginPassword: administratorLoginPassword
+    entraAdminObjectId: entraAdminObjectId
+    entraAdminLoginName: entraAdminLoginName
     location: location
   }
 }
 
+// Output resources information
 output webAppEndpoint string = webAppModule.outputs.defaultHostName
 output sqlServerFqdn string = sqlDbModule.outputs.sqlServerFullyQualifiedDomainName
+output entraIdInfo object = {
+  message: 'SQL Server configured with Entra ID authentication only'
+  adminLogin: entraAdminLoginName
+}
